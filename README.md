@@ -26,7 +26,7 @@ Timers are dynamically allocated to hardware resources. A call to the `begin()` 
 
 Currently, this library utilizes the PIT (Periodic Interrupt Timer) modules, of which there are four. However, only three are available for general use because one is being used by the built-in `tone()` functionality. The first timer to be allocated to a PIT module will enable the PIT clock and the last timer using a PIT module to be stopped will disable the PIT clock.
 
-Invalid period values will be _silently_ fixed. For example, assuming the default bus speed of 48 MHz, a specified period of 100 seconds will be shortened to about 89.48 seconds, which is the __absolute maximum__ period. The valid range for period at this bus speed is `0.000013312` to `89.478485312` (approximately 14 nanoseconds to 89 seconds).
+Invalid period values will be _silently_ fixed. For example, assuming the default bus speed of 48 MHz, a specified period of 100 seconds will be shortened to about 89.48 seconds, which is the __absolute maximum__ period. The valid range for period at this bus speed is `0.000013312` to `89.478485312` (approximately 14 microseconds to 89 seconds).
 
 ### Contact and copyright
 
