@@ -4,9 +4,9 @@
 
 ### Overview and usage
 
-Start a timer by creating a new `IntervalTimer` object and then calling it's `begin()` function, passing it the name of the function you'd like it to execute periodically (this is known as its _callback_ function), as well as its _period_ in seconds as a floating-point value. For example:
+Start a timer by creating a new `IntervalTimer` object and then calling it's `begin()` function, passing it the name of the function you'd like it to execute periodically (this is known as its _callback_ function), as well as its _period_ in seconds as a floating-point value:
 
-	IntervalTimer timer0;
+    IntervalTimer timer0;
     timer0.begin(timerCallback0, 5.0);
 
 Once started, the specified callback function will be called at a regular interval. You can change a callback function simply by stopping the timer and restarting it. Your callback routines should have no return value nor any arguments, and they should contain as little code as necessary. Any external variables they modify should be marked as volatile. For example:
