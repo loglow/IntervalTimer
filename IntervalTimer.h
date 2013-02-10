@@ -27,10 +27,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
 class IntervalTimer {
-  public: 
-    bool begin(ISR newISR, float newPeriod);
-    void end();
-    static ISR PIT_ISR[NUM_PIT];
   private:
     typedef void (*ISR)();
     typedef volatile uint32_t* reg;
@@ -50,6 +46,10 @@ class IntervalTimer {
     reg PIT_TCTRL;
     uint8_t IRQ_PIT_CH;
     ISR myISR;
+  public: 
+    bool begin(ISR newISR, float newPeriod);
+    void end();
+    static ISR PIT_ISR[NUM_PIT];
 };
 
 
