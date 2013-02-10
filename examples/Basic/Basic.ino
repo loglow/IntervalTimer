@@ -1,40 +1,48 @@
 #include "IntervalTimer.h"
 
-uint32_t timerCount0;
-uint32_t timerCount1;
-uint32_t timerCount2;
+volatile bool printNow = true;
+volatile uint32_t timerCounter0;
+volatile uint32_t timerCounter1;
+volatile uint32_t timerCounter2;
 
-void printTimers() {
-  Serial.print("Timer0: ");
-  Serial.print(timerCount0);
+void printTimerCounters() {
+  Serial.print("timer0: ");
+  Serial.print(timerCounter0);
   Serial.print("\t");
-  Serial.print("Timer1: ");
-  Serial.print(timerCount1);
+  Serial.print("timer1: ");
+  Serial.print(timerCounter1);
   Serial.print("\t");
-  Serial.print("Timer2: ");
-  Serial.println(timerCount2);
+  Serial.print("timer2: ");
+  Serial.print(timerCounter2);
+  Serial.print("\n\r");
+  printNow = false;
 }
 
 void timerCallback0() {
-  timerCount0++;
+  timerCounter0++;
 }
 
 void timerCallback1() {
-  timerCount1++;
-  timerCount0 = 0;
+  timerCounter1++;
+  timerCounter0 = 0;
 }
 
 void timerCallback2() {
-  timerCount2++;
-  printTimers();
+  timerCounter2++;
+  printNow = true;
 }
 
 void setup() {
   Serial.begin(true);
-  Timer0.begin(timerCallback0, 1.0 / 2000);
-  Timer1.begin(timerCallback1, 5.0);
-  Timer2.begin(timerCallback2, 1.0);
+  delay(500);
+  IntervalTimer timer0;
+  IntervalTimer timer1;
+  IntervalTimer timer2;
+  timer0.begin(timerCallback0, 1.0 / 2000);
+  timer1.begin(timerCallback1, 5.0);
+  timer2.begin(timerCallback2, 1.0);
 }
 
 void loop() {
+  if (printNow) printTimerCounters();
 }
