@@ -9,7 +9,7 @@ Start a timer by creating a new `IntervalTimer` object and then calling it's `be
 	IntervalTimer timer0;
     timer0.begin(timerCallback0, 5.0);
 
-Once started, a periodic interrupt will call the specified callback function whenever it expires. You can change a callback function simply by stopping the timer and restarting it. Your callback routines should have no return value nor any arguments. They should contain as little code as necessary:
+Once started, the specified callback function will be called at a regular interval. You can change a callback function simply by stopping the timer and restarting it. Your callback routines should have no return value nor any arguments, and they should contain as little code as necessary. Any external variables they modify should be marked as volatile. For example:
 
     volatile uint32_t timerCounter0;
     void timerCallback0() {
