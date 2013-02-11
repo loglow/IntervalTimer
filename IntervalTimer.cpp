@@ -25,11 +25,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #include <stdint.h>
 #include <math.h>
 
-#define PIT_MCR_MDIS  (uint32_t)0x2 // Module Disable
-#define PIT_TCTRL_TEN (uint32_t)0x1 // Timer Enable
-#define PIT_TCTRL_TIE (uint32_t)0x2 // Timer Interrupt Enable
-#define PIT_TFLG_TIF  (uint32_t)0x1 // Timer Interrupt Flag
-
 
 
 // ------------------------------------------------------------
@@ -47,9 +42,9 @@ IntervalTimer::ISR IntervalTimer::PIT_ISR[];
 // so that they can auto-clear themselves and so the user can
 // specify a custom ISR and reassign it as needed
 // ------------------------------------------------------------
-void pit0_isr() { cli(); PIT_TFLG0 |= PIT_TFLG_TIF; IntervalTimer::PIT_ISR[0](); sei(); }
-void pit1_isr() { cli(); PIT_TFLG1 |= PIT_TFLG_TIF; IntervalTimer::PIT_ISR[1](); sei(); }
-void pit2_isr() { cli(); PIT_TFLG2 |= PIT_TFLG_TIF; IntervalTimer::PIT_ISR[2](); sei(); }
+void pit0_isr() { PIT_TFLG0 = 1; IntervalTimer::PIT_ISR[0](); }
+void pit1_isr() { PIT_TFLG1 = 1; IntervalTimer::PIT_ISR[1](); }
+void pit2_isr() { PIT_TFLG2 = 1; IntervalTimer::PIT_ISR[2](); }
 
 
 
@@ -59,17 +54,17 @@ void pit2_isr() { cli(); PIT_TFLG2 |= PIT_TFLG_TIF; IntervalTimer::PIT_ISR[2]();
 // the name of a function taking no arguments and returning void.
 // make sure this function can complete within the time allowed.
 // attempts to allocate a timer using available resources,
-// returning true on success or false in case of failure
+// returning true on success or false in case of failure.
+// period is specified as number of microseconds (millionths)
 // ------------------------------------------------------------
-bool IntervalTimer::begin(ISR newISR, float newPeriod) {
+bool IntervalTimer::begin(ISR newISR, uint32_t newPeriod) {
   
   // store callback pointer
   myISR = newISR;
   
-  // calc value based on period, and check ranges
-  uint32_t newValue = floor(F_BUS * newPeriod + 0.5) - 1;
-  if (newValue == UINT32_MAX) newValue = UINT32_MAX - 1;
-  else if (newValue < MIN_VALUE) newValue = MIN_VALUE;
+  // check range and calc value based on period
+  if (newPeriod == 0 || newPeriod > MAX_PERIOD) return false;
+  uint32_t newValue = F_BUS * (newPeriod / 1000000.0) - 1;
   
   // attempt to allocate this timer
   if (allocate_PIT(newValue)) status = TIMER_PIT;
@@ -99,7 +94,7 @@ void IntervalTimer::end() {
 // ------------------------------------------------------------
 void IntervalTimer::enable_PIT() {
   SIM_SCGC6 |= SIM_SCGC6_PIT;
-  PIT_MCR &= ~PIT_MCR_MDIS;
+  PIT_MCR = 0;
   PIT_enabled = true;
 }
 
@@ -109,7 +104,7 @@ void IntervalTimer::enable_PIT() {
 // disables the master PIT reg, the PIT clock bit, and unsets flag
 // ------------------------------------------------------------
 void IntervalTimer::disable_PIT() {
-  PIT_MCR |= PIT_MCR_MDIS;
+  PIT_MCR = 1;
   SIM_SCGC6 &= ~SIM_SCGC6_PIT;
   PIT_enabled = false;
 }
@@ -160,7 +155,7 @@ void IntervalTimer::start_PIT(uint32_t newValue) {
   
   // write value to register and enable interrupt
   *PIT_LDVAL = newValue;
-  *PIT_TCTRL |= PIT_TCTRL_TEN | PIT_TCTRL_TIE;
+  *PIT_TCTRL = 3;
   NVIC_ENABLE_IRQ(IRQ_PIT_CH);
 
 }
@@ -176,7 +171,7 @@ void IntervalTimer::stop_PIT() {
   
   // disable interrupt and PIT
   NVIC_DISABLE_IRQ(IRQ_PIT_CH);
-  *PIT_TCTRL &= ~PIT_TCTRL_TEN & ~PIT_TCTRL_TIE;
+  *PIT_TCTRL = 0;
   
   // free PIT for future use
   PIT_used[PIT_id] = false;

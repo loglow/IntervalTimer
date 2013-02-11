@@ -22,6 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 #ifndef __INTERVALTIMER_H__
 #define __INTERVALTIMER_H__
 
+#include <Arduino.h>
 #include <stdint.h>
 
 
@@ -32,7 +33,7 @@ class IntervalTimer {
     typedef volatile uint32_t* reg;
     enum {TIMER_OFF, TIMER_PIT};
     static const uint8_t NUM_PIT = 3;
-    static const uint16_t MIN_VALUE = 639;
+    static const uint32_t MAX_PERIOD = UINT32_MAX / (F_BUS / 1000000.0);
     static void enable_PIT();
     static void disable_PIT();
     static bool PIT_enabled;
@@ -47,7 +48,7 @@ class IntervalTimer {
     uint8_t IRQ_PIT_CH;
     ISR myISR;
   public: 
-    bool begin(ISR newISR, float newPeriod);
+    bool begin(ISR newISR, uint32_t newPeriod);
     void end();
     static ISR PIT_ISR[NUM_PIT];
 };

@@ -38,9 +38,9 @@ void setup() {
   IntervalTimer timer0;
   IntervalTimer timer1;
   IntervalTimer timer2;
-  timer0.begin(timerCallback0, 1.0 / 2000);
-  timer1.begin(timerCallback1, 5.0);
-  timer2.begin(timerCallback2, 1.0);
+  timer0.begin(timerCallback0, 500);     // 2 kHz
+  timer1.begin(timerCallback1, 5000000); // 5 seconds
+  timer2.begin(timerCallback2, 1000000); // 1 second
 }
 
 void loop() {
